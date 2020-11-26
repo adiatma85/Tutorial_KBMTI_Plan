@@ -10,9 +10,12 @@ const userService = require('../users/user.service');
 
 // Middleware
 const validateRequest = require('middleware/validate-request');
+const authenticateToken = require('middleware/jwt');
 
 // Module Exports
 module.exports = router
+
+router.use(authenticateToken)
 
 // Routes
 router.get('/all', getAll)
@@ -72,6 +75,10 @@ async function getById(req, res, next){
                 data: data,
             })
         } )
+}
+
+async function isExist(){
+
 }
 
 // Register a Article

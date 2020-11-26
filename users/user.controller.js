@@ -5,6 +5,7 @@ const Joi = require('joi');
 
 // Middleware
 const validateRequest = require('middleware/validate-request');
+const authenticateToken = require('middleware/jwt');
 
 
 // Service for User
@@ -17,13 +18,14 @@ module.exports = router
 
 // ROUTES
 router.get('/', index)
-router.get('/all', getAllUser)
-router.get('/user/:id', getById)
+router.get('/all', authenticateToken, getAllUser)
+router.get('/user/:id', authenticateToken ,getById)
 router.get('/register-page', create)
 router.get('/login-page', login)
+router.post('/login', loginAction);
 router.post('/register', validateCreateJSON, store);
-router.put('/user/:id', validateUpdateJSON, update);
-router.delete('/user/:id', _delete)
+router.put('/user/:id', authenticateToken ,validateUpdateJSON, update);
+router.delete('/user/:id', authenticateToken, _delete)
 
 
 // FUNCTIONS
@@ -75,6 +77,23 @@ function create(req, res, next) {
 // Login User
 function login(req, res, next) {
     res.render('login');
+}
+
+async function loginAction(req, res, next) {
+    const { username, password } = req.body
+    await userService.login(username, password)
+        .then( data => {
+            // console.log(data)
+            res.status(200).json({
+                message: "Berhasil login",
+                data
+            })
+        } )
+        .catch( (err) => {
+            next(err)
+        } )
+    // return res.status(204);
+    // await userService.login()
 }
 
 async function store(req, res, next) {
