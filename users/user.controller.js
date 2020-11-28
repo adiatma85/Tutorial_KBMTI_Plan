@@ -2,6 +2,7 @@
 const express = require('express')
 const router = express.Router();
 const Joi = require('joi');
+const jwt = require('../_helpers/jwt');
 
 // Middleware
 const validateRequest = require('middleware/validate-request');
@@ -83,7 +84,10 @@ async function loginAction(req, res, next) {
     const { username, password } = req.body
     await userService.login(username, password)
         .then( data => {
-            // console.log(data)
+            data.token = jwt(data)
+            delete data.first_name;
+            delete data.last_name;
+            delete data.hashPassword;
             res.status(200).json({
                 message: "Berhasil login",
                 data

@@ -3,10 +3,20 @@ const bcrypt = require('bcryptjs');
 
 const login = (username, password) => {
     return new Promise( (resolve, reject) => {
-        let query = `SELECT u.first_name, u.last_name, u.username, u.hashPassword FROM users u WHERE u.username = '${username}' LIMIT 1`
+        let query = `SELECT 
+                        u.id, 
+                        u.first_name, 
+                        u.last_name, 
+                        u.username, 
+                        u.hashPassword 
+                    FROM users u 
+                    WHERE u.username = '${username}' LIMIT 1`
         db.query(query, (err, data) => {
             if (err) reject(err)
             else {
+                if (!data) {
+                    reject("user not found");
+                }
                 if (bcrypt.compareSync(password, data[0].hashPassword)) {
                     resolve(data[0])
                 }
